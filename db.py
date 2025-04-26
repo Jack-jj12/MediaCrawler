@@ -19,9 +19,11 @@ from urllib.parse import urlparse
 
 import aiofiles
 import aiomysql
+import asyncpg
 
 import config
 from async_db import AsyncMysqlDB
+from async_pg_db import AsyncPgDB
 from tools import utils
 from var import db_conn_pool_var, media_crawler_db_var
 
@@ -32,15 +34,28 @@ async def init_mediacrawler_db():
     Returns:
 
     """
-    pool = await aiomysql.create_pool(
-        host=config.RELATION_DB_HOST,
-        port=config.RELATION_DB_PORT,
-        user=config.RELATION_DB_USER,
-        password=config.RELATION_DB_PWD,
-        db=config.RELATION_DB_NAME,
-        autocommit=True,
-    )
-    async_db_obj = AsyncMysqlDB(pool)
+    # 判断数据库类型，根据端口号区分MySQL和PostgreSQL
+    if config.RELATION_DB_PORT == 5432:  # PostgreSQL端口
+        # 使用asyncpg连接PostgreSQL数据库(neon.tech)
+        pool = await asyncpg.create_pool(
+            host=config.RELATION_DB_HOST,
+            port=config.RELATION_DB_PORT,
+            user=config.RELATION_DB_USER,
+            password=config.RELATION_DB_PWD,
+            database=config.RELATION_DB_NAME,
+        )
+        async_db_obj = AsyncPgDB(pool)
+    else:  # MySQL端口
+        # 使用aiomysql连接MySQL数据库
+        pool = await aiomysql.create_pool(
+            host=config.RELATION_DB_HOST,
+            port=config.RELATION_DB_PORT,
+            user=config.RELATION_DB_USER,
+            password=config.RELATION_DB_PWD,
+            db=config.RELATION_DB_NAME,
+            autocommit=True,
+        )
+        async_db_obj = AsyncMysqlDB(pool)
 
     # 将连接池对象和封装的CRUD sql接口对象放到上下文变量中
     db_conn_pool_var.set(pool)
@@ -76,13 +91,17 @@ async def init_table_schema():
     Returns:
 
     """
-    utils.logger.info("[init_table_schema] begin init mysql table schema ...")
+    db_type = "postgresql" if config.RELATION_DB_PORT == 5432 else "mysql"
+    utils.logger.info(f"[init_table_schema] begin init {db_type} table schema ...")
     await init_mediacrawler_db()
-    async_db_obj: AsyncMysqlDB = media_crawler_db_var.get()
+    async_db_obj = media_crawler_db_var.get()
+    
+    # 读取SQL文件
     async with aiofiles.open("schema/tables.sql", mode="r", encoding="utf-8") as f:
         schema_sql = await f.read()
+        # 执行SQL语句
         await async_db_obj.execute(schema_sql)
-        utils.logger.info("[init_table_schema] mediacrawler table schema init successful")
+        utils.logger.info(f"[init_table_schema] mediacrawler {db_type} table schema init successful")
         await close()
 
 

@@ -1,3 +1,21 @@
+# 数据库配置
+# 原始配置（已注释）
+# DB_HOST = "192.168.121.212"  # 数据库主机地址
+# DB_PORT = 3306  # 数据库端口
+# DB_USER = "root"  # 数据库用户名
+# DB_PASSWORD = "2496051005"  # 替换为你的数据库密码
+# DB_DATABASE = "mediacrawler"  # 数据库名称
+
+# Neon.tech 云数据库配置
+DB_HOST = "ep-cool-silence-a4q9k7fm-pooler.us-east-1.aws.neon.tech"  # 替换为你的neon.tech数据库主机地址
+DB_PORT = 5432  # PostgreSQL默认端口
+DB_USER = "neondb_owner"  # 替换为你的neon.tech用户名
+DB_PASSWORD = "npg_Bmyev4dOc0xV"  # 替换为你的neon.tech密码
+DB_DATABASE = "mideacrawl"  # 数据库名称
+
+# 注意：Neon.tech使用PostgreSQL数据库，与MySQL有所不同
+# 在DBeaver中连接时，请选择PostgreSQL连接类型
+
 # 声明：本代码仅供学习和研究目的使用。使用者应遵守以下原则：  
 # 1. 不得用于任何商业用途。  
 # 2. 使用时应遵守目标平台的使用条款和robots.txt规则。  
@@ -11,12 +29,12 @@
 
 import os
 
-# mysql config
-RELATION_DB_PWD = os.getenv("RELATION_DB_PWD", "123456")
-RELATION_DB_USER = os.getenv("RELATION_DB_USER", "root")
-RELATION_DB_HOST = os.getenv("RELATION_DB_HOST", "localhost")
-RELATION_DB_PORT = os.getenv("RELATION_DB_PORT", 3306)
-RELATION_DB_NAME = os.getenv("RELATION_DB_NAME", "media_crawler")
+# PostgreSQL config for Neon.tech
+RELATION_DB_PWD = os.getenv("RELATION_DB_PWD", "your_password")  # 替换为你的neon.tech密码
+RELATION_DB_USER = os.getenv("RELATION_DB_USER", "neon_user")  # 替换为你的neon.tech用户名
+RELATION_DB_HOST = os.getenv("RELATION_DB_HOST", "ep-cool-flower-123456.us-east-2.aws.neon.tech")  # 替换为你的neon.tech主机地址
+RELATION_DB_PORT = os.getenv("RELATION_DB_PORT", 5432)  # PostgreSQL默认端口
+RELATION_DB_NAME = os.getenv("RELATION_DB_NAME", "mideacrawl")
 
 
 # redis config
